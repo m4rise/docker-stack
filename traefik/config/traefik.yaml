@@ -1,0 +1,19 @@
+api:
+  dashboard: true
+  insecure: true
+  debug: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    watch: true
+    exposedByDefault: false
+    network: "traefik"
+  file:
+    watch: true
+    filename: "/etc/traefik/dynamic_conf.yaml"

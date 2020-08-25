@@ -1,0 +1,5 @@
+[user]
+	email = contact@damien-duval.fr
+	name = m4rise
+[core]
+	excludesfile = /root/.gitignore_global

@@ -1,0 +1,24 @@
+version: '3.8'
+
+networks:
+  traefik:
+    external:
+      name: 'traefik'
+
+services:
+  traefik:
+    image: traefik:v2.2
+    container_name: 'traefik'
+    restart: always
+    read_only: true
+    ports:
+      - ${HOST_UNSECURE_PORT-80}:80
+      - ${HOST_SECURE_PORT-443}:443
+      - ${HOST_TRAEFIK_INTERFACE_PORT-8080}:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./config/dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml
+      - ${CERTS_DIR-../certs}:/etc/certs
+    networks:
+      - traefik
