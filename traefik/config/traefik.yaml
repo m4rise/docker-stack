@@ -16,4 +16,4 @@ providers:
     network: "traefik"
   file:
     watch: true
-    filename: "/etc/traefik/dynamic_conf.yaml"
+    directory: "/etc/traefik/dynamic_conf.d"

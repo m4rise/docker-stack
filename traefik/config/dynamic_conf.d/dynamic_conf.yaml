@@ -1,0 +1,51 @@
+tls:
+  certificates:
+    - certFile: "/etc/certs/local-cert.pem"
+      keyFile: "/etc/certs/local-key.pem"
+      stores:
+        - default
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/etc/certs/local-cert.pem"
+        keyFile: "/etc/certs/local-key.pem"
+http:
+  middlewares:
+    for-dev:
+      chain:
+        middlewares:
+          - compress-it
+          - cors-headers
+          - security-headers
+          - cache-headers
+    compress-it:
+      compress: {}
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer
+        browserXssFilter: true
+        stsSeconds: 15552000
+        forceSTSHeader: true
+    cors-headers:
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - Origin
+          - Authorization
+          - Content-Type
+        accessControlAllowMethods:
+          - OPTION
+          - GET
+          - POST
+          - PUT
+          - PATCH
+        accessControlAllowOriginList:
+          - "*"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+    cache-headers:
+      headers:
+        customResponseHeaders:
+          Cache-Control: "no-cache, max-age=0"

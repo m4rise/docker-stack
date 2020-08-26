@@ -25,13 +25,17 @@ services:
       - ${APACHE_LOG_DIR-./logs/apache2}:/var/log/apache2
     labels:
       - traefik.enable=true
-      - traefik.http.middlewares.www_https.redirectscheme.scheme=https
-      - traefik.http.routers.www.middlewares=www_https@docker
+      # HTTP
       - traefik.http.routers.www.rule=Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)
       - traefik.http.routers.www.entrypoints=web
+      # Redirects HTTP to HTTPS
+      - traefik.http.middlewares.www_https.redirectscheme.scheme=https
+      - traefik.http.routers.www.middlewares=www_https@docker
+      # HTTPS
       - traefik.http.routers.www_https.rule=Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)
       - traefik.http.routers.www_https.entrypoints=websecure
       - traefik.http.routers.www_https.tls=true
+      - traefik.http.routers.www_https.middlewares=for-dev@file
     networks:
       - traefik
 
