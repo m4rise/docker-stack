@@ -1,6 +1,3 @@
-# Always keep .gitkeep
-!/**/.gitkeep
-
 # Global project
 .env
 /certs/
@@ -9,3 +6,8 @@
 /lamp/config/vhosts/*.loc.conf
 /lamp/data/
 /lamp/logs/
+
+# Always keep .gitkeep
+*
+!*/
+!.git*
