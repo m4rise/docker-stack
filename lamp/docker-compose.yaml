@@ -3,15 +3,15 @@ version: "3.8"
 networks:
   traefik:
     external:
-      name: 'traefik'
+      name: traefik
 
 services:
 
   webserver:
     build:
       context: ./bin/webserver
-    container_name: 'webserver'
-    restart: 'always'
+    container_name: webserver
+    restart: always
     depends_on:
       - mysql
     volumes:
@@ -28,8 +28,8 @@ services:
 #      # Redirects HTTP to HTTPS
 #      traefik.http.routers.www.middlewares: "redirect-to-https@file"
       # HTTPS
-      traefik.http.routers.www_https.rule: "Host(${PROJECTS_URLS-`localhost`})"
-      traefik.http.routers.www_https.entrypoints: "websecure"
+      traefik.http.routers.www_https.rule: Host(${PROJECTS_URLS-`localhost`})
+      traefik.http.routers.www_https.entrypoints: websecure
       traefik.http.routers.www_https.tls: true
       traefik.http.routers.www_https.middlewares: "for-dev@file"
     networks:
@@ -38,8 +38,8 @@ services:
   mysql:
     build:
       context: "./bin/${DATABASE}"
-    container_name: 'mysql'
-    restart: 'always'
+    container_name: mysql
+    restart: always
     volumes:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
@@ -58,8 +58,8 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: 'phpmyadmin'
-    restart: 'always'
+    container_name: phpmyadmin
+    restart: always
     depends_on:
       - mysql
     environment:
@@ -72,14 +72,14 @@ services:
       - /sessions
     labels:
       traefik.enable: true
-      traefik.http.routers.pma.rule: "Host(`phpmyadmin.localhost`)"
-      traefik.http.routers.pma.entrypoints: "web"
+      traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
+      traefik.http.routers.pma.entrypoints: web
     networks:
       - traefik
 
   nodejs:
     image: node:latest
-    container_name: 'nodejs'
+    container_name: nodejs
     volumes:
       - ${DOCUMENT_ROOT-../../www}:/var/www
     # ports:
@@ -91,9 +91,9 @@ services:
       - traefik
 
   redis:
-    container_name: 'redis'
+    container_name: redis
     image: redis:latest
-    restart: 'always'
+    restart: always
     labels:
       traefik.enable: false
     networks:
