@@ -1,0 +1,80 @@
+version: "3.8"
+
+networks:
+  traefik:
+    external:
+      name: 'traefik'
+
+services:
+
+  webserver:
+    build:
+      context: ./bin/webserver
+    container_name: 'webserver'
+    restart: 'always'
+    depends_on:
+      - mysql
+    volumes:
+      - ${DOCUMENT_ROOT-../../www}:/var/www
+      - ${CERTS_DIR-../certs}:/etc/apache2/certs
+      - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
+      - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
+      - ${APACHE_LOG_DIR-./logs/apache2}:/var/log/apache2
+    labels:
+      traefik.enable: true
+      # HTTP
+      traefik.http.routers.www.rule: "Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)"
+      traefik.http.routers.www.entrypoints: "web"
+      # Redirects HTTP to HTTPS
+      traefik.http.middlewares.www_https.redirectscheme.scheme: "https"
+      traefik.http.routers.www.middlewares: "www_https@docker"
+      # HTTPS
+      traefik.http.routers.www_https.rule: "Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)"
+      traefik.http.routers.www_https.entrypoints: "websecure"
+      traefik.http.routers.www_https.tls: true
+      traefik.http.routers.www_https.middlewares: "for-dev@file"
+    networks:
+      - traefik
+
+  mysql:
+    build:
+      context: "./bin/${DATABASE}"
+    container_name: 'mysql'
+    restart: 'always'
+    volumes:
+      - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
+      - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
+    # ENABLE PORT MAPPING IF HOST ACCESS NEEDED (IDE,...)
+    # ports:
+    #   - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
+
+  nodejs:
+    image: node:latest
+    container_name: 'nodejs'
+    volumes:
+      - ${DOCUMENT_ROOT-../../www}:/var/www
+    # ports:
+    #   - "1337:1337"
+    # command: "yarn run"
+    labels:
+      traefik.enable: true
+    networks:
+      - traefik
+
+  redis:
+    container_name: 'redis'
+    image: redis:latest
+    restart: 'always'
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
