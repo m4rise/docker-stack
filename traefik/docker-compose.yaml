@@ -3,12 +3,13 @@ version: '3.8'
 networks:
   traefik:
     external:
-      name: 'traefik'
+      name: traefik
 
 services:
+
   traefik:
     image: traefik:v2.2
-    container_name: 'traefik'
+    container_name: traefik
     restart: always
     read_only: true
     ports:
@@ -22,14 +23,14 @@ services:
     labels:
       traefik.enable: true
       # Dashboard
-      traefik.http.routers.traefik.rule: "Host(`traefik.localhost`)"
-      traefik.http.routers.traefik.service: "api@internal"
+      traefik.http.routers.traefik.rule: Host(`traefik.localhost`)
+      traefik.http.routers.traefik.entrypoints: websecure
       traefik.http.routers.traefik.tls: true
-      traefik.http.routers.traefik.entrypoints: "websecure"
-      traefik.http.routers.traefik.middlewares: "authtraefik@file"
+      traefik.http.routers.traefik.service: "api@internal"
+      traefik.http.routers.traefik.middlewares: authtraefik@file
       # Global redirect to https
-      traefik.http.routers.http-catchall.rule: "hostregexp(`{host:.+}`)"
-      traefik.http.routers.http-catchall.entrypoints: "web"
+      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.http-catchall.entrypoints: web
       traefik.http.routers.http-catchall.middlewares: "redirect-to-https@file"
     networks:
       - traefik

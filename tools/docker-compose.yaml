@@ -3,9 +3,10 @@ version: '3.8'
 networks:
   traefik:
     external:
-      name: 'traefik'
+      name: traefik
 
 services:
+
   portainer:
     container_name: portainer
     image: portainer/portainer
@@ -18,16 +19,16 @@ services:
       - portainer_data:/data
     labels:
       traefik.enable: true
-      traefik.http.routers.portainer.entrypoints: web
       traefik.http.routers.portainer.rule: Host(`portainer.localhost`)
+      traefik.http.routers.portainer.entrypoints: web
       traefik.http.services.portainer.loadbalancer.server.port: 9000
     networks:
       - traefik
 
   maildev:
-    container_name: 'maildev'
+    container_name: maildev
     image: djfarrelly/maildev
-    restart: 'always'
+    restart: always
     labels:
       traefik.enable: true
       traefik.http.routers.mail.rule: Host(`maildev.localhost`)
