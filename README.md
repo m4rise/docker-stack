@@ -1,15 +1,15 @@
 # docker-stack
 
-##Features
+## Features
 
-####Traefik reverse proxy
+#### Traefik reverse proxy
 
-####Tools stack
+#### Tools stack
 - Portainer
 - Maildev
 - PHPMyAdmin
 
-####LAMP extended stack
+#### LAMP extended stack
 - PHP-Apache
 - Mysql
 - Node with Yarn
