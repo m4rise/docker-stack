@@ -1,0 +1,11 @@
+# Always keep .gitkeep
+!/**/.gitkeep
+
+# Global project
+.env
+/certs/
+
+# lamp specific
+/lamp/config/vhosts/*.loc.conf
+/lamp/data/
+/lamp/logs/

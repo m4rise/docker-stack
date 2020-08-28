@@ -1,14 +1,3 @@
-tls:
-  certificates:
-    - certFile: "/etc/certs/local-cert.pem"
-      keyFile: "/etc/certs/local-key.pem"
-      stores:
-        - default
-  stores:
-    default:
-      defaultCertificate:
-        certFile: "/etc/certs/local-cert.pem"
-        keyFile: "/etc/certs/local-key.pem"
 http:
   middlewares:
     for-dev:
@@ -18,6 +7,14 @@ http:
           - cors-headers
           - security-headers
           - cache-headers
+    authtraefik:
+      basicAuth:
+        users:
+          - "admin:$2y$10$22uFpzSDEHO/zNsC1U0tte.YPNLAN2AMxpvXkJwQmFgPXow0xP1py"
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
     compress-it:
       compress: {}
     security-headers:

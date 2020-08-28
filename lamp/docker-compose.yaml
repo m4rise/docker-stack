@@ -22,14 +22,13 @@ services:
       - ${APACHE_LOG_DIR-./logs/apache2}:/var/log/apache2
     labels:
       traefik.enable: true
-      # HTTP
-      traefik.http.routers.www.rule: "Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)"
-      traefik.http.routers.www.entrypoints: "web"
-      # Redirects HTTP to HTTPS
-      traefik.http.middlewares.www_https.redirectscheme.scheme: "https"
-      traefik.http.routers.www.middlewares: "www_https@docker"
+#      # HTTP
+#      traefik.http.routers.www.rule: "Host(${PROJECTS_URLS-`localhost`})"
+#      traefik.http.routers.www.entrypoints: "web"
+#      # Redirects HTTP to HTTPS
+#      traefik.http.routers.www.middlewares: "redirect-to-https@file"
       # HTTPS
-      traefik.http.routers.www_https.rule: "Host(`webserver.localhost`,`portfolio.loc`,`project.loc`,`myAPI.loc`)"
+      traefik.http.routers.www_https.rule: "Host(${PROJECTS_URLS-`localhost`})"
       traefik.http.routers.www_https.entrypoints: "websecure"
       traefik.http.routers.www_https.tls: true
       traefik.http.routers.www_https.middlewares: "for-dev@file"
@@ -44,7 +43,7 @@ services:
     volumes:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
-    # ENABLE PORT MAPPING IF HOST ACCESS NEEDED (IDE,...)
+    # ENABLE PORT MAPPING IF HOST MACHINE ACCESS NEEDED (IDE,...)
     # ports:
     #   - "3306:3306"
     environment:
@@ -54,6 +53,27 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     labels:
       traefik.enable: false
+    networks:
+      - traefik
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: 'phpmyadmin'
+    restart: 'always'
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - /sessions
+    labels:
+      traefik.enable: true
+      traefik.http.routers.pma.rule: "Host(`phpmyadmin.localhost`)"
+      traefik.http.routers.pma.entrypoints: "web"
     networks:
       - traefik
 
