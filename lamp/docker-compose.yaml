@@ -73,7 +73,8 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
-      traefik.http.routers.pma.entrypoints: web
+      traefik.http.routers.pma.entrypoints: websecure
+      traefik.http.routers.pma.tls: true
     networks:
       - traefik
 
