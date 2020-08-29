@@ -4,6 +4,9 @@ networks:
   traefik:
     external:
       name: traefik
+  docker-socket-proxy:
+    external:
+      name: docker-socket-proxy
 
 services:
 
@@ -11,9 +14,8 @@ services:
     container_name: portainer
     image: portainer/portainer
     restart: always
-    command: -H unix:///var/run/docker.sock
+    command: -H tcp://docker-socket-proxy:2375
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - portainer_data:/data
@@ -25,6 +27,19 @@ services:
       traefik.http.services.portainer.loadbalancer.server.port: 9000
     networks:
       - traefik
+      - docker-socket-proxy
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    labels:
+      traefik.enable: true
+      traefik.http.routers.adminer.rule: Host(`adminer.localhost`)
+      traefik.http.routers.adminer.entrypoints: websecure
+      traefik.http.routers.adminer.tls: true
+    networks:
+      - traefik
 
   maildev:
     container_name: maildev
@@ -32,10 +47,10 @@ services:
     restart: always
     labels:
       traefik.enable: true
-      traefik.http.routers.mail.rule: Host(`maildev.localhost`)
-      traefik.http.routers.mail.entrypoints: websecure
-      traefik.http.routers.mail.tls: true
-      traefik.http.services.mail.loadbalancer.server.port: 80
+      traefik.http.routers.maildev.rule: Host(`maildev.localhost`)
+      traefik.http.routers.maildev.entrypoints: websecure
+      traefik.http.routers.maildev.tls: true
+      traefik.http.services.maildev.loadbalancer.server.port: 80
     networks:
       - traefik
 

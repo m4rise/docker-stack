@@ -1,20 +1,24 @@
-# docker-stack
+# Docker dev stack
 
 ## Features
 
-#### Traefik reverse proxy
+#### Traefik Stack
+
+- HAProxy exposing host machine docker socket to an internal network via tcp with configurable options
+- Traefik		(traefik.localhost for dashboard)
 
 #### Tools stack
 
-- Portainer
-- Maildev
+- Portainer		(portainer.localhost)
+- Maildev		(maildev.localhost)
+- Adminer		(adminer.localhost)
 
 #### LAMP extended stack
 
-- PHP-Apache
+- PHP-Apache		(..., configure vhosts in lamp/conf/vhosts)
 - Mysql
-- PHPMyAdmin
-- Node (with Yarn/NPM)
+- PHPMyAdmin		(phpmyadmin.localhost)
+- Node Yarn/NPM
 - Redis
 
 ## Install specific step
@@ -22,10 +26,10 @@
 - From project root, generate cert(s) with a tool like **[mkcert](https://github.com/FiloSottile/mkcert)** :
 
 ```bin/bash 
-mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "*.localhost" "*.loc" localhost 127.0.0.1 ::1
+mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "*.localhost" "*.loc" localhost [...]
 ```
 
-- Don't forget to update your **/etc/hosts** file
+- Don't forget to update your **/etc/hosts** file for each vhost added
 
 ## More
 

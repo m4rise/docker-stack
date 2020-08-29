@@ -4,19 +4,57 @@ networks:
   traefik:
     external:
       name: traefik
+  docker-socket-proxy:
+    external:
+      name: docker-socket-proxy
 
 services:
+
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: docker-socket-proxy
+    environment:
+      - EVENTS=1
+      - PING=1
+      - VERSION=1
+      # SECURITY - DISABLED BY DEFAULT
+      - AUTH=0
+      - SECRETS=0
+      - POST=0
+      # OTHER DISABLED BY DEFAULT
+      - BUILD=1
+      - COMMIT=1
+      - CONFIGS=1
+      - CONTAINERS=1 # Traefik needs it
+      - DISTRIBUTION=1
+      - EXEC=1
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
+      - NODES=1
+      - PLUGINS=1
+      - SERVICES=1
+      - SESSION=1
+      - SWARM=1
+      - SYSTEM=1
+      - TASKS=1
+      - VOLUMES=1
+    networks:
+      - docker-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   traefik:
     image: traefik:v2.2
     container_name: traefik
     restart: always
     read_only: true
+    depends_on:
+      - docker-socket-proxy
     ports:
       - ${HOST_UNSECURE_PORT-80}:80
       - ${HOST_SECURE_PORT-443}:443
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
       - ./config/dynamic_conf.d:/etc/traefik/dynamic_conf.d
       - ${CERTS_DIR-../certs}:/etc/certs
@@ -26,11 +64,12 @@ services:
       traefik.http.routers.traefik.rule: Host(`traefik.localhost`)
       traefik.http.routers.traefik.entrypoints: websecure
       traefik.http.routers.traefik.tls: true
-      traefik.http.routers.traefik.service: "api@internal"
+      traefik.http.routers.traefik.service: 'api@internal'
       traefik.http.routers.traefik.middlewares: authtraefik@file
       # Global redirect to https
       traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
       traefik.http.routers.http-catchall.entrypoints: web
-      traefik.http.routers.http-catchall.middlewares: "redirect-to-https@file"
+      traefik.http.routers.http-catchall.middlewares: 'redirect-to-https@file'
     networks:
       - traefik
+      - docker-socket-proxy

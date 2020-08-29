@@ -30,7 +30,6 @@ RUN pecl install redis-5.3.1 && \
     docker-php-ext-enable redis
 
 # Other PHP7 Extensions
-
 RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mysqli && \
@@ -60,5 +59,6 @@ RUN a2enmod rewrite headers ssl
 RUN service apache2 restart
 
 WORKDIR /var/www
+
 # Cleanup
 RUN rm -rf /usr/src/*

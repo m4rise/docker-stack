@@ -37,15 +37,12 @@ services:
 
   mysql:
     build:
-      context: "./bin/${DATABASE}"
+      context: ./bin/db/${DATABASE-mysql8}
     container_name: mysql
     restart: always
     volumes:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
-    # ENABLE PORT MAPPING IF HOST MACHINE ACCESS NEEDED (IDE,...)
-    # ports:
-    #   - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}

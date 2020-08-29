@@ -10,7 +10,7 @@ http:
     authtraefik:
       basicAuth:
         users:
-          - "admin:$2y$10$22uFpzSDEHO/zNsC1U0tte.YPNLAN2AMxpvXkJwQmFgPXow0xP1py"
+          - 'admin:$2y$10$22uFpzSDEHO/zNsC1U0tte.YPNLAN2AMxpvXkJwQmFgPXow0xP1py'
     redirect-to-https:
       redirectScheme:
         scheme: https
@@ -39,10 +39,10 @@ http:
           - PUT
           - PATCH
         accessControlAllowOriginList:
-          - "*"
+          - '*'
         accessControlMaxAge: 100
         addVaryHeader: true
     cache-headers:
       headers:
         customResponseHeaders:
-          Cache-Control: "no-cache, max-age=0"
+          Cache-Control: 'no-cache, max-age=0'
