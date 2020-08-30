@@ -13,6 +13,7 @@ services:
   docker-socket-proxy:
     image: tecnativa/docker-socket-proxy
     container_name: docker-socket-proxy
+    restart: always
     environment:
       - EVENTS=1
       - PING=1
