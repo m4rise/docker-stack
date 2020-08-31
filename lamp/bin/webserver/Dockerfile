@@ -41,18 +41,21 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install mbstring && \
     docker-php-ext-install gettext
 
-# Install Freetype
+# Install Freetype && GD
 RUN apt-get -y update && \
     apt-get --no-install-recommends install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
     rm -rf /var/lib/apt/lists/* && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg
-
-# Install GD
-RUN docker-php-ext-install -j$(nproc) gd
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install -j$(nproc) gd
 
 # Install Symfony binary
-RUN wget https://get.symfony.com/cli/installer -O - | bash
-RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+RUN wget https://get.symfony.com/cli/installer -O - | bash  && \
+    mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+
+# Install php-cs-fixer
+RUN wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O php-cs-fixer  && \
+    chmod a+x php-cs-fixer && \
+    mv php-cs-fixer /usr/local/bin/php-cs-fixer
 
 # Enable apache modules
 RUN a2enmod rewrite headers ssl

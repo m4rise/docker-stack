@@ -12,7 +12,7 @@ services:
 
   portainer:
     container_name: portainer
-    image: portainer/portainer
+    image: portainer/portainer-ce
     restart: always
     command: -H tcp://docker-socket-proxy:2375
     volumes:
