@@ -45,6 +45,7 @@ services:
     container_name: maildev
     image: djfarrelly/maildev
     restart: always
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
     labels:
       traefik.enable: true
       traefik.http.routers.maildev.rule: Host(`maildev.localhost`)
