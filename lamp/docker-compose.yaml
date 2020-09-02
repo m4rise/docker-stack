@@ -16,7 +16,7 @@ services:
       - mysql
     volumes:
       - ${DOCUMENT_ROOT-../../www}:/var/www
-      - ${CERTS_DIR-../certs}:/etc/apache2/certs
+      - ${CERTS_DIR-../certs}:/etc/apache2/certs:ro
       - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
       - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
       - ${APACHE_LOG_DIR-./logs/apache2}:/var/log/apache2
@@ -72,19 +72,21 @@ services:
       traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
       traefik.http.routers.pma.entrypoints: websecure
       traefik.http.routers.pma.tls: true
+      traefik.http.routers.pma.middlewares: authtraefik@file
     networks:
       - traefik
 
   nodejs:
     image: node:latest
     container_name: nodejs
+    expose:
+      - 1337
     volumes:
       - ${DOCUMENT_ROOT-../../www}:/var/www
-    # ports:
-    #   - "1337:1337"
-    # command: "yarn run"
     labels:
       traefik.enable: true
+      traefik.http.routers.node.rule: Host(`node.localhost`)
+      traefik.http.services.node.loadbalancer.server.port: 1337
     networks:
       - traefik
 
