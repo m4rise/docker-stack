@@ -26,7 +26,9 @@
 - From project root, generate cert(s) with a tool like **[mkcert](https://github.com/FiloSottile/mkcert)** :
 
 ```bin/bash 
-mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "*.localhost" "*.loc" localhost [...]
+mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "*.localhost" "*.loc" localhost phpmyadmin.localhost adminer.localhost node.localhost maildev.localhost portainer.localhost traefik.localhost 127.0.0.1 ::1 [...otherProjects]
+
+mkcert -pkcs12 -p12-file certs/local-p12.p12 "*.localhost" "*.loc" localhost phpmyadmin.localhost adminer.localhost node.localhost maildev.localhost portainer.localhost traefik.localhost 127.0.0.1 ::1 [...otherProjects]
 ```
 
 - Don't forget to update your **/etc/hosts** file for each vhost added
