@@ -10,6 +10,10 @@ services:
   webserver:
     build:
       context: ./bin/webserver
+      args:
+        - USER_HOSTMACHINE_UID=${USER_HOSTMACHINE_UID-1000}
+        - USER_HOSTMACHINE_GID=${USER_HOSTMACHINE_GID-1000}
+        - USER_NAME=${USER_NAME-damien}
     container_name: webserver
     restart: always
     depends_on:
@@ -45,9 +49,6 @@ services:
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     labels:
       traefik.enable: false
     networks:
@@ -63,8 +64,6 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - /sessions
     labels:
@@ -76,19 +75,21 @@ services:
     networks:
       - traefik
 
-  nodejs:
-    image: node:latest
-    container_name: nodejs
+  node:
+    image: node:lts
+    container_name: node
     expose:
       - 1337
     volumes:
       - ${DOCUMENT_ROOT-../../www}:/var/www
+      - ${CERTS_DIR-../certs}:/etc/certs
     labels:
-      traefik.enable: true
+      traefik.enable: false
       traefik.http.routers.node.rule: Host(`node.localhost`)
       traefik.http.services.node.loadbalancer.server.port: 1337
     networks:
-      - traefik
+      traefik:
+        ipv4_address: 172.18.0.20
 
   redis:
     container_name: redis
