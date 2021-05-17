@@ -48,7 +48,7 @@ services:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
     labels:
       traefik.enable: false
     networks:
@@ -63,7 +63,7 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
     volumes:
       - /sessions
     labels:
@@ -72,6 +72,39 @@ services:
       traefik.http.routers.pma.entrypoints: websecure
       traefik.http.routers.pma.tls: true
       traefik.http.routers.pma.middlewares: authtraefik@file
+    networks:
+      - traefik
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DBS_ROOT_NAME-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
+    volumes:
+      - ${MONGO_DATA_DIR-./data/mongo}:/data/db
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DBS_ROOT_NAME-root}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DBS_ROOT_PASSWORD}
+    labels:
+      traefik.enable: true
+      traefik.http.routers.mongo-express.rule: Host(`mongo-express.localhost`)
+      traefik.http.routers.mongo-express.entrypoints: websecure
+      traefik.http.routers.mongo-express.tls: true
+      traefik.http.routers.mongo-express.middlewares: authtraefik@file
     networks:
       - traefik
 

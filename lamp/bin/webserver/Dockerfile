@@ -25,7 +25,7 @@ RUN apt-get -y update \
         default-mysql-client zlib1g-dev libzip-dev libicu-dev \
     && \
         apt-get -y --no-install-recommends install --fix-missing \
-        apt-utils build-essential git curl libonig-dev libcurl4 libcurl4-openssl-dev zip openssl \
+        apt-utils build-essential git curl libonig-dev libcurl4 libcurl4-openssl-dev zip unzip openssl \
     && \
         rm -rf /var/lib/apt/lists/* \
     && \
