@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 networks:
   traefik:
@@ -125,8 +125,8 @@ services:
         ipv4_address: 172.18.0.20
 
   redis:
-    container_name: redis
     image: redis:latest
+    container_name: redis
     restart: always
     labels:
       traefik.enable: false

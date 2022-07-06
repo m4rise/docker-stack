@@ -1,4 +1,4 @@
-FROM php:7.4.9-apache-buster
+FROM php:8.1-apache-bullseye
 
 # Surpresses debconf complaints of trying to install apt packages interactively
 # https://github.com/moby/moby/issues/4032#issuecomment-192327844
@@ -18,33 +18,42 @@ RUN apt-get -y update --fix-missing && \
     rm -rf /var/lib/apt/lists/*
 
 # Install useful tools and install important libaries
-RUN apt-get -y update \
-    && \
-        apt-get -y --no-install-recommends install \
-        nano wget dialog libsqlite3-dev libsqlite3-0 \
-        default-mysql-client zlib1g-dev libzip-dev libicu-dev \
-    && \
-        apt-get -y --no-install-recommends install --fix-missing \
-        apt-utils build-essential git curl libonig-dev libcurl4 libcurl4-openssl-dev zip unzip openssl \
-    && \
-        rm -rf /var/lib/apt/lists/* \
-    && \
+RUN apt-get -y update && \
+    apt-get -y --no-install-recommends install nano wget \
+    dialog \
+    libsqlite3-dev \
+    libsqlite3-0 && \
+    apt-get -y --no-install-recommends install default-mysql-client \
+    zlib1g-dev \
+    libzip-dev \
+    libicu-dev && \
+    apt-get -y --no-install-recommends install --fix-missing apt-utils \
+    build-essential \
+    git \
+    curl \
+    libonig-dev && \
+    apt-get install -y iputils-ping && \
+    apt-get -y --no-install-recommends install --fix-missing libcurl4 \
+    libcurl4-openssl-dev \
+    zip \
+    openssl && \
+    rm -rf /var/lib/apt/lists/* && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install xdebug
-RUN pecl install xdebug-3.0.4 && \
+RUN pecl install xdebug-3.1.5 && \
     docker-php-ext-enable xdebug
 
 # Install redis
-RUN pecl install redis-5.3.4 && \
+RUN pecl install redis-5.3.7 && \
     docker-php-ext-enable redis
 
 # Install imagick
 RUN apt-get update && \
-    apt-get -y --no-install-recommends install --fix-missing libmagickwand-dev && \
-    rm -rf /var/lib/apt/lists/* && \
+    apt-get install -y libmagickwand-dev && \
     pecl install imagick && \
-    docker-php-ext-enable imagick
+    docker-php-ext-enable imagick && \
+    rm -rf /var/lib/apt/lists/*
 
 # Other PHP7 Extensions
 RUN docker-php-ext-install pdo_mysql && \
@@ -60,25 +69,26 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install exif
 
 # Install Freetype and gd
-RUN apt-get -y update \
-    && \
-        apt-get --no-install-recommends install -y \
-        libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
-    && \
-        rm -rf /var/lib/apt/lists/* \
-    && \
-        docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
-    && \
-        docker-php-ext-install gd
+# Install Freetype
+RUN apt-get -y update && \
+    apt-get --no-install-recommends install -y libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd
 
 # Install Symfony binary
-RUN wget https://get.symfony.com/cli/installer -O - | bash && \
-    mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash && \
+    apt-get install symfony-cli
 
 # Install php-cs-fixer
-RUN wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O php-cs-fixer  && \
+RUN wget https://cs.symfony.com/download/php-cs-fixer-v3.phar -O php-cs-fixer && \
     chmod a+x php-cs-fixer && \
-    mv php-cs-fixer /usr/local/bin/php-cs-fixer
+    mv php-cs-fixer /usr/local/bin/php-cs-fixer \
+
+# Insure an SSL directory exists
+RUN mkdir -p /etc/apache2/ssl
 
 # Enable apache modules
 RUN a2enmod rewrite headers ssl
