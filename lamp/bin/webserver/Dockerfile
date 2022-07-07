@@ -9,7 +9,7 @@ ARG USER_HOSTMACHINE_GID
 ARG USER_NAME
 
 RUN groupadd -g ${USER_HOSTMACHINE_GID} ${USER_NAME} && \
-    useradd --uid ${USER_HOSTMACHINE_UID} -g ${USER_NAME} ${USER_NAME}
+    useradd -u ${USER_HOSTMACHINE_UID} -g ${USER_NAME} -m ${USER_NAME}
 
 # Update
 RUN apt-get -y update --fix-missing && \
@@ -36,9 +36,13 @@ RUN apt-get -y update && \
     apt-get -y --no-install-recommends install --fix-missing libcurl4 \
     libcurl4-openssl-dev \
     zip \
+    unzip \
+    php8.1-zip \
     openssl && \
     rm -rf /var/lib/apt/lists/* && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php --install-dir=/usr/local/bin --filename=composer
 
 # Install xdebug
 RUN pecl install xdebug-3.1.5 && \
@@ -55,21 +59,19 @@ RUN apt-get update && \
     docker-php-ext-enable imagick && \
     rm -rf /var/lib/apt/lists/*
 
-# Other PHP7 Extensions
+# Other PHP Extensions
 RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mysqli && \
     docker-php-ext-install curl && \
-    docker-php-ext-install tokenizer && \
-    docker-php-ext-install json && \
     docker-php-ext-install zip && \
     docker-php-ext-install -j$(nproc) intl && \
     docker-php-ext-install mbstring && \
     docker-php-ext-install gettext && \
+    docker-php-ext-install calendar && \
     docker-php-ext-install exif
 
 # Install Freetype and gd
-# Install Freetype
 RUN apt-get -y update && \
     apt-get --no-install-recommends install -y libfreetype6-dev \
     libjpeg62-turbo-dev \
@@ -79,13 +81,13 @@ RUN apt-get -y update && \
     docker-php-ext-install gd
 
 # Install Symfony binary
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash && \
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash && \
     apt-get install symfony-cli
 
 # Install php-cs-fixer
 RUN wget https://cs.symfony.com/download/php-cs-fixer-v3.phar -O php-cs-fixer && \
     chmod a+x php-cs-fixer && \
-    mv php-cs-fixer /usr/local/bin/php-cs-fixer \
+    mv php-cs-fixer /usr/local/bin/php-cs-fixer
 
 # Insure an SSL directory exists
 RUN mkdir -p /etc/apache2/ssl
