@@ -37,12 +37,11 @@ RUN apt-get -y update && \
     libcurl4-openssl-dev \
     zip \
     unzip \
-    php8.1-zip \
     openssl && \
-    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install composer
-RUN curl -sS https://getcomposer.org/installer | php --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install xdebug
 RUN pecl install xdebug-3.1.5 && \

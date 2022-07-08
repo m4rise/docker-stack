@@ -48,6 +48,7 @@ services:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
+      MYSQL_ROOT_HOST: ${DBS_ROOT_NAME-root}
       MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
     labels:
       traefik.enable: false

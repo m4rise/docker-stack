@@ -1,3 +1,3 @@
 FROM mysql:8
-RUN echo "default-authentication-plugin=mysql_native_password" >> /etc/mysql/my.cnf
+RUN sed -i 's/^# default-authentication-plugin/default-authentication-plugin/g' /etc/my.cnf
 
