@@ -27,6 +27,7 @@ http:
         stsSeconds: 15552000
         stsIncludeSubdomains: true
         stsPreload: true
+        isDevelopment: true
     cors-headers:
       headers:
         accessControlAllowCredentials: true
