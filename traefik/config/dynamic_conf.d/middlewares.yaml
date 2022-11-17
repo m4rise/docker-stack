@@ -23,8 +23,10 @@ http:
         contentTypeNosniff: true
         referrerPolicy: no-referrer
         browserXssFilter: true
-        stsSeconds: 15552000
         forceSTSHeader: true
+        stsSeconds: 15552000
+        stsIncludeSubdomains: true
+        stsPreload: true
     cors-headers:
       headers:
         accessControlAllowCredentials: true

@@ -14,7 +14,7 @@ services:
     container_name: portainer
     image: portainer/portainer-ce
     restart: always
-    command: -H tcp://docker-socket-proxy:2375
+    command: -H tcp://docker-socket-proxy:2375 --http-enabled
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -39,6 +39,26 @@ services:
       traefik.http.routers.adminer.entrypoints: websecure
       traefik.http.routers.adminer.tls: true
       traefik.http.routers.adminer.middlewares: authtraefik@file
+    networks:
+      - traefik
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    external_links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    volumes:
+      - /sessions
+    labels:
+      traefik.enable: true
+      traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
+      traefik.http.routers.pma.entrypoints: websecure
+      traefik.http.routers.pma.tls: true
+      traefik.http.routers.pma.middlewares: authtraefik@file
     networks:
       - traefik
 
