@@ -3,6 +3,7 @@ version: '3.9'
 networks:
   traefik:
     name: traefik
+    enable_ipv6: false
     ipam:
       driver: default
       config:

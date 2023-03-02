@@ -11,28 +11,28 @@ services:
     build:
       context: ./bin/webserver
       args:
-        - USER_HOSTMACHINE_UID=${USER_HOSTMACHINE_UID-1000}
-        - USER_HOSTMACHINE_GID=${USER_HOSTMACHINE_GID-1000}
-        - USER_NAME=${USER_NAME-damien}
+        - USER_HOSTMACHINE_UID=${USER_HOSTMACHINE_UID:-1000}
+        - USER_HOSTMACHINE_GID=${USER_HOSTMACHINE_GID:-1000}
+        - USER_NAME=${USER_NAME:-damien}
     container_name: webserver
     restart: always
     depends_on:
       - mysql
     volumes:
-      - ${DOCUMENT_ROOT-../../www}:/var/www
-      - ${CERTS_DIR-../certs}:/etc/apache2/certs:ro
-      - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
-      - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
-      - ${APACHE_LOG_DIR-./logs/apache2}:/var/log/apache2
+      - ${DOCUMENT_ROOT:-../../www}:/var/www
+      - ${CERTS_DIR:-../certs}:/etc/apache2/certs:ro
+      - ${PHP_INI:-./config/php/php.ini}:/usr/local/etc/php/php.ini
+      - ${VHOSTS_DIR:-./config/vhosts}:/etc/apache2/sites-enabled
+      - ${APACHE_LOG_DIR:-./logs/apache2}:/var/log/apache2
     labels:
       traefik.enable: true
 #      # HTTP
-#      traefik.http.routers.www.rule: "Host(${PROJECTS_URLS-`localhost`})"
+#      traefik.http.routers.www.rule: "Host(${PROJECTS_URLS:-`localhost`})"
 #      traefik.http.routers.www.entrypoints: "web"
 #      # Redirects HTTP to HTTPS
 #      traefik.http.routers.www.middlewares: "redirect-to-https@file"
       # HTTPS
-      traefik.http.routers.www_https.rule: Host(${PROJECTS_URLS-`localhost`})
+      traefik.http.routers.www_https.rule: Host(${PROJECTS_URLS:-`localhost`})
       traefik.http.routers.www_https.entrypoints: websecure
       traefik.http.routers.www_https.tls: true
       traefik.http.routers.www_https.middlewares: "for-dev@file"
@@ -41,15 +41,15 @@ services:
 
   mysql:
     build:
-      context: ./bin/db/${DATABASE-mysql8}
+      context: ./bin/db/${DATABASE:-mysql8}
     container_name: mysql
     restart: always
     volumes:
-      - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
-      - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
+      - ${MYSQL_DATA_DIR:-./data/mysql}:/var/lib/mysql
+      - ${MYSQL_LOG_DIR:-./logs/mysql}:/var/log/mysql
     environment:
-      MYSQL_ROOT_HOST: ${DBS_ROOT_NAME-root}
-      MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
+      MYSQL_ROOT_HOST: ${DBS_ROOT_NAME:-root}
+      MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD:-root}
     labels:
       traefik.enable: false
     networks:
@@ -60,49 +60,40 @@ services:
 #    container_name: mongo
 #    restart: always
 #    environment:
-#      MONGO_INITDB_ROOT_USERNAME: ${DBS_ROOT_NAME-root}
+#      MONGO_INITDB_ROOT_USERNAME: ${DBS_ROOT_NAME:-root}
 #      MONGO_INITDB_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD}
 #    volumes:
-#      - ${MONGO_DATA_DIR-./data/mongo}:/data/db
+#      - ${MONGO_DATA_DIR:-./data/mongo}:/data/db
 #    labels:
 #      traefik.enable: false
 #    networks:
 #      - traefik
-#
-#  mongo-express:
-#    image: mongo-express
-#    container_name: mongo-express
-#    restart: always
-#    depends_on:
-#      - mongo
-#    environment:
-#      ME_CONFIG_MONGODB_SERVER: mongo
-#      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DBS_ROOT_NAME-root}
-#      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DBS_ROOT_PASSWORD}
-#    labels:
-#      traefik.enable: true
-#      traefik.http.routers.mongo-express.rule: Host(`mongo-express.localhost`)
-#      traefik.http.routers.mongo-express.entrypoints: websecure
-#      traefik.http.routers.mongo-express.tls: true
-#      traefik.http.routers.mongo-express.middlewares: authtraefik@file
-#    networks:
-#      - traefik
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_directory=/logs", "-c", "log_filename=postgresql.log", "-c", "log_statement=all"]
+    volumes:
+      - ${POSTGRES_DATA_DIR:-./data/postgres}:/var/lib/postgresql/data
+      - ${POSTGRES_LOG_DIR:-./logs/postgres}:/logs
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${DBS_ROOT_PASSWORD:-root}
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
 
   node:
     image: node:lts
     container_name: node
-    expose:
-      - 1337
     volumes:
-      - ${DOCUMENT_ROOT-../../www}:/var/www
-      - ${CERTS_DIR-../certs}:/etc/certs
+      - ${DOCUMENT_ROOT:-../../www}:/var/www
     labels:
       traefik.enable: false
-      traefik.http.routers.node.rule: Host(`node.localhost`)
-      traefik.http.services.node.loadbalancer.server.port: 1337
     networks:
-      traefik:
-        ipv4_address: 172.18.0.20
+      - traefik
 
   redis:
     image: redis:latest
