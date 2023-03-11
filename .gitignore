@@ -6,3 +6,6 @@
 /lamp/config/vhosts/*.loc.conf
 /lamp/data/*
 /lamp/logs/*
+
+# tools specific
+/tools/data*

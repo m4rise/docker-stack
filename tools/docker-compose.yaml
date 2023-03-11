@@ -74,23 +74,31 @@ services:
       traefik.http.routers.pgadmin.rule: Host(`pgadmin.localhost`)
       traefik.http.routers.pgadmin.entrypoints: websecure
       traefik.http.routers.pgadmin.tls: true
-      traefik.http.routers.pgadmin.middlewares: authtraefik@file
+#      traefik.http.routers.pgadmin.middlewares: authtraefik@file
     volumes:
       - /var/lib/pgadmin
     networks:
       - traefik
 
-  maildev:
-    container_name: maildev
-    image: djfarrelly/maildev
+  inbucket:
+    container_name: inbucket
+    image: inbucket/inbucket:stable
     restart: always
-    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    environment:
+      INBUCKET_LOGLEVEL: "debug"
+      INBUCKET_SMTP_ADDR: "0.0.0.0:2500"
+      INBUCKET_POP3_ADDR: "0.0.0.0:1100"
+      INBUCKET_WEB_ADDR: "0.0.0.0:9000"
+      INBUCKET_STORAGE_TYPE: "file"
+      INBUCKET_STORAGE_PARAMS: "path:/tmp/inbucket"
+    volumes:
+      - ./data/inbucket:/tmp/inbucket
     labels:
       traefik.enable: true
-      traefik.http.routers.maildev.rule: Host(`maildev.localhost`)
-      traefik.http.routers.maildev.entrypoints: websecure
-      traefik.http.routers.maildev.tls: true
-      traefik.http.services.maildev.loadbalancer.server.port: 80
+      traefik.http.routers.inbucket.rule: Host(`inbucket.localhost`)
+      traefik.http.routers.inbucket.entrypoints: websecure
+      traefik.http.routers.inbucket.tls: true
+      traefik.http.services.inbucket.loadbalancer.server.port: 9000
     networks:
       - traefik
 
