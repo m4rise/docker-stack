@@ -2,14 +2,14 @@ version: '3.9'
 
 networks:
   traefik:
-    name: traefik
+    external: true
     enable_ipv6: false
     ipam:
       driver: default
       config:
         - subnet: 172.18.0.0/24
   docker-socket-proxy:
-      name: docker-socket-proxy
+      external: true
       ipam:
         driver: default
         config:

@@ -2,11 +2,9 @@ version: '3.9'
 
 networks:
   traefik:
-    external:
-      name: traefik
+    external: true
   docker-socket-proxy:
-    external:
-      name: docker-socket-proxy
+    external: true
 
 services:
 
@@ -29,38 +27,38 @@ services:
       - traefik
       - docker-socket-proxy
 
-  adminer:
-    container_name: adminer
-    image: adminer
-    restart: always
-    labels:
-      traefik.enable: true
-      traefik.http.routers.adminer.rule: Host(`adminer.localhost`)
-      traefik.http.routers.adminer.entrypoints: websecure
-      traefik.http.routers.adminer.tls: true
-      traefik.http.routers.adminer.middlewares: authtraefik@file
-    networks:
-      - traefik
+#   adminer:
+#     container_name: adminer
+#     image: adminer
+#     restart: always
+#     labels:
+#       traefik.enable: true
+#       traefik.http.routers.adminer.rule: Host(`adminer.localhost`)
+#       traefik.http.routers.adminer.entrypoints: websecure
+#       traefik.http.routers.adminer.tls: true
+#       traefik.http.routers.adminer.middlewares: authtraefik@file
+#     networks:
+#       - traefik
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    restart: always
-    external_links:
-      - mysql
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-    volumes:
-      - /sessions
-    labels:
-      traefik.enable: true
-      traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
-      traefik.http.routers.pma.entrypoints: websecure
-      traefik.http.routers.pma.tls: true
-      traefik.http.routers.pma.middlewares: authtraefik@file
-    networks:
-      - traefik
+#   phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     container_name: phpmyadmin
+#     restart: always
+#     external_links:
+#       - mysql
+#     environment:
+#       PMA_HOST: mysql
+#       PMA_PORT: 3306
+#     volumes:
+#       - /sessions
+#     labels:
+#       traefik.enable: true
+#       traefik.http.routers.pma.rule: Host(`phpmyadmin.localhost`)
+#       traefik.http.routers.pma.entrypoints: websecure
+#       traefik.http.routers.pma.tls: true
+#       traefik.http.routers.pma.middlewares: authtraefik@file
+#     networks:
+#       - traefik
 
   pgadmin:
     image: dpage/pgadmin4
@@ -74,7 +72,7 @@ services:
       traefik.http.routers.pgadmin.rule: Host(`pgadmin.localhost`)
       traefik.http.routers.pgadmin.entrypoints: websecure
       traefik.http.routers.pgadmin.tls: true
-#      traefik.http.routers.pgadmin.middlewares: authtraefik@file
+      traefik.http.routers.pgadmin.middlewares: authtraefik@file
     volumes:
       - /var/lib/pgadmin
     networks:
