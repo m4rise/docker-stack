@@ -1,0 +1,93 @@
+# Configuration Docker Compose pour intégrer un projet à la stack de développement
+# Copiez ce fichier dans votre projet et adaptez-le selon vos besoins
+
+version: '3.9'
+
+networks:
+  traefik:
+    external: true
+
+services:
+  # Exemple pour une application web
+  my-app:
+    build: .
+    container_name: my-app
+    restart: always
+    environment:
+      # Variables d'environnement pour la base de données
+      DB_HOST: postgres  # ou mariadb, mongo selon votre choix
+      DB_PORT: 5432
+      DB_NAME: myapp
+      DB_USER: postgres
+      DB_PASSWORD: root
+
+      # Variables pour Redis (cache)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # Variables pour RabbitMQ (messages)
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin
+
+      # Variables pour Elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+
+      # Configuration mail (Inbucket pour les tests)
+      MAIL_HOST: inbucket
+      MAIL_PORT: 2500
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_ENCRYPTION: ""
+
+    labels:
+      # Traefik configuration
+      traefik.enable: true
+      traefik.http.routers.my-app.rule: Host(`my-app.localhost`)
+      traefik.http.routers.my-app.entrypoints: websecure
+      traefik.http.routers.my-app.tls: true
+      # Optionnel: middleware d'authentification pour les apps en développement
+      # traefik.http.routers.my-app.middlewares: authtraefik@file
+
+      # Si votre app utilise un port différent de 80
+      # traefik.http.services.my-app.loadbalancer.server.port: 3000
+
+    volumes:
+      # Montage du code source pour le développement (hot reload)
+      - ./src:/app/src
+      # Montage des logs
+      - ./logs:/app/logs
+
+    networks:
+      - traefik
+
+    # Optionnel: dépendances vers d'autres services
+    depends_on:
+      - postgres  # ou mariadb selon votre choix
+      - redis
+
+  # Exemple pour un worker/queue processor
+  my-worker:
+    build: .
+    container_name: my-worker
+    restart: always
+    command: ["php", "artisan", "queue:work"]  # Exemple pour Laravel
+    environment:
+      # Mêmes variables que l'app principale
+      DB_HOST: postgres
+      DB_PORT: 5432
+      # ...
+    volumes:
+      - ./src:/app/src
+    networks:
+      - traefik
+    depends_on:
+      - rabbitmq
+      - postgres
+
+# Si vous avez besoin de volumes persistants spécifiques à votre projet
+volumes:
+  my-app-storage:
+    driver: local

@@ -49,3 +49,36 @@ http:
       headers:
         customResponseHeaders:
           Cache-Control: 'no-cache, max-age=0'
+    # Rate limiting et protection DDoS
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 200
+        period: 1m
+
+    # Protection contre les attaques par injection
+    secure-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+        customResponseHeaders:
+          X-Robots-Tag: "noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex"
+        contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none';"
+
+    # IP whitelist pour les outils d'administration
+    admin-whitelist:
+      ipWhiteList:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
+
+    # Middleware pour le développement local
+    dev-auth:
+      chain:
+        middlewares:
+          - rate-limit
+          - secure-headers
+          - admin-whitelist
+          - authtraefik

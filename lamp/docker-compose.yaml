@@ -104,3 +104,79 @@ services:
       traefik.enable: false
     networks:
       - traefik
+
+# Cache & Message Queue
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    volumes:
+      - ${ELASTICSEARCH_DATA_DIR:-./data/elasticsearch}:/usr/share/elasticsearch/data
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin}
+    volumes:
+      - ${RABBITMQ_DATA_DIR:-./data/rabbitmq}:/var/lib/rabbitmq
+    labels:
+      traefik.enable: true
+      traefik.http.routers.rabbitmq.rule: Host(`rabbitmq.localhost`)
+      traefik.http.routers.rabbitmq.entrypoints: websecure
+      traefik.http.routers.rabbitmq.tls: true
+      traefik.http.routers.rabbitmq.middlewares: authtraefik@file
+      traefik.http.services.rabbitmq.loadbalancer.server.port: 15672
+    networks:
+      - traefik
+
+  memcached:
+    image: memcached:alpine
+    container_name: memcached
+    restart: always
+    command: memcached -m 64
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
+
+  # Databases alternatives
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-development}
+      MYSQL_USER: ${MYSQL_USER:-developer}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-developer}
+    volumes:
+      - ${MARIADB_DATA_DIR:-./data/mariadb}:/var/lib/mysql
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DBS_ROOT_NAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${DBS_ROOT_PASSWORD:-root}
+    volumes:
+      - ${MONGO_DATA_DIR:-./data/mongo}:/data/db
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik
