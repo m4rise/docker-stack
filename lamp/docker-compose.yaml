@@ -72,13 +72,12 @@ services:
     image: postgres:latest
     container_name: postgres
     restart: always
-    user: ${USER_HOSTMACHINE_UID:-1000}:${USER_HOSTMACHINE_GID:-1000}
     volumes:
-      - ${POSTGRES_DATA_DIR:-./data/postgres}:/data/postgres
+      - ${POSTGRES_DATA_DIR:-./data/postgres}:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${DBS_ROOT_PASSWORD:-root}
-      PGDATA: /data/postgres
+      POSTGRES_DB: boilerplate
     labels:
       traefik.enable: false
     networks:
@@ -135,7 +134,6 @@ services:
       traefik.http.routers.rabbitmq.rule: Host(`rabbitmq.localhost`)
       traefik.http.routers.rabbitmq.entrypoints: websecure
       traefik.http.routers.rabbitmq.tls: true
-      traefik.http.routers.rabbitmq.middlewares: authtraefik@file
       traefik.http.services.rabbitmq.loadbalancer.server.port: 15672
     networks:
       - traefik

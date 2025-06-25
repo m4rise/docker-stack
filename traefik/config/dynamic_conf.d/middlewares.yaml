@@ -4,6 +4,7 @@ http:
       chain:
         middlewares:
           - compress-it
+          - session-headers
           - cors-headers
           - security-headers
           - cache-headers
@@ -49,6 +50,17 @@ http:
       headers:
         customResponseHeaders:
           Cache-Control: 'no-cache, max-age=0'
+    
+    # Session handling for PHP applications
+    session-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+          X-Forwarded-Host: "{{ .Request.Host }}"
+          X-Real-IP: "{{ .Request.Header.X-Real-IP }}"
+        customResponseHeaders:
+          # Ensure cookies work properly with HTTPS
+          Strict-Transport-Security: "max-age=31536000; includeSubDomains"
     # Rate limiting et protection DDoS
     rate-limit:
       rateLimit:
